@@ -1,10 +1,191 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
+// Componente para el contador de tiempo
+const CountdownTimer = ({ dueDate }) => {
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+  function calculateTimeLeft() {
+    if (!dueDate) return null;
+    
+    const difference = new Date(dueDate) - new Date();
+    
+    if (difference <= 0) {
+      return { expired: true };
+    }
+
+    return {
+      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((difference / 1000 / 60) % 60),
+      seconds: Math.floor((difference / 1000) % 60)
+    };
+  }
+
+  useEffect(() => {
+    if (!dueDate) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [dueDate]);
+
+  if (!dueDate) {
+    return <p><strong>Tiempo restante:</strong> Sin fecha de vencimiento</p>;
+  }
+
+  if (timeLeft?.expired) {
+    return <p style={{color: '#e74c3c', fontWeight: 'bold'}}>⏰ Tarea vencida</p>;
+  }
+
+  if (!timeLeft) {
+    return <p><strong>Tiempo restante:</strong> Calculando...</p>;
+  }
+
+  return (
+    <p>
+      <strong>Tiempo restante:</strong> {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+    </p>
+  );
+};
+
+// Componente para la tacha roja de tareas vencidas
+const OverdueIndicator = ({ task }) => {
+  const isOverdue = () => {
+    if (!task.dueDate) return false;
+    const now = new Date();
+    const dueDate = new Date(task.dueDate);
+    return dueDate < now && task.status !== 'Completada';
+  };
+
+  if (!isOverdue()) {
+    return null;
+  }
+
+  return (
+    <div className="overdue-indicator" title="Tarea vencida y no completada">
+      <span className="overdue-cross">✕</span>
+    </div>
+  );
+};
+
+// Componente para la estrella de prioridad
+const PriorityIndicator = ({ task }) => {
+  if (!task.isPriority) {
+    return null;
+  }
+
+  return (
+    <div className="priority-indicator" title="Tarea prioritaria">
+      <span className="priority-star">⭐</span>
+    </div>
+  );
+};
+
+// Componente para el contador de estados de tareas
+const TaskStatusCounter = ({ tasks }) => {
+  const countTasksByStatus = () => {
+    const counts = {
+      Pendiente: 0,
+      'En proceso': 0,
+      Completada: 0
+    };
+
+    tasks.forEach(task => {
+      if (counts.hasOwnProperty(task.status)) {
+        counts[task.status]++;
+      }
+    });
+
+    return counts;
+  };
+
+  const taskCounts = countTasksByStatus();
+
+  return (
+    <div className="task-status-counter">
+      <h3>Resumen de tareas</h3>
+      <div className="counter-grid">
+        <div className="counter-item pending">
+          <span className="counter-number">{taskCounts.Pendiente}</span>
+          <span className="counter-label">Pendientes</span>
+        </div>
+        <div className="counter-item in-progress">
+          <span className="counter-number">{taskCounts['En proceso']}</span>
+          <span className="counter-label">En proceso</span>
+        </div>
+        <div className="counter-item completed">
+          <span className="counter-number">{taskCounts.Completada}</span>
+          <span className="counter-label">Completadas</span>
+        </div>
+      </div>
+      <div className="counter-total">
+        Total de tareas: {tasks.length}
+      </div>
+    </div>
+  );
+};
+
+// Componente para notificaciones de tareas próximas a vencer
+const DueSoonNotifications = ({ tasks, onAcknowledge }) => {
+  const [acknowledgedTasks, setAcknowledgedTasks] = useState([]);
+
+  const isDueSoon = (task) => {
+    if (!task.dueDate || task.status === 'Completada') return false;
+    
+    const now = new Date();
+    const dueDate = new Date(task.dueDate);
+    const timeDiff = dueDate.getTime() - now.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    return daysDiff <= 2 && daysDiff >= 0;
+  };
+
+  const handleAcknowledge = (taskId) => {
+    setAcknowledgedTasks(prev => [...prev, taskId]);
+    if (onAcknowledge) {
+      onAcknowledge(taskId);
+    }
+  };
+
+  const dueSoonTasks = tasks.filter(task => 
+    isDueSoon(task) && !acknowledgedTasks.includes(task.id)
+  );
+
+  if (dueSoonTasks.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="due-soon-notifications">
+      <h3>📢 Tareas próximas a vencer</h3>
+      {dueSoonTasks.map(task => (
+        <div key={task.id} className="due-soon-notification">
+          <div className="notification-content">
+            <h4>{task.title}</h4>
+            <p><strong>Asignada a:</strong> {task.assignedTo}</p>
+            <p><strong>Vence:</strong> {task.dueDate}</p>
+            <p><strong>Estado:</strong> {task.status}</p>
+            <p className="due-soon-warning">⏳ Esta tarea está próxima a vencer</p>
+          </div>
+          <button 
+            className="acknowledge-btn"
+            onClick={() => handleAcknowledge(task.id)}
+          >
+            Enterado
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 function App() {
   const [employees, setEmployees] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({ title: '', description: '', assignedTo: '', startDate: '', dueDate: '', status: 'Pendiente' });
+  const [newTask, setNewTask] = useState({ title: '', description: '', assignedTo: '', startDate: '', dueDate: '', status: 'Pendiente', isPriority: false });
   const [newEmployee, setNewEmployee] = useState({ name: '', position: '', degree: '', activities: '' });
 
   const [editingEmployee, setEditingEmployee] = useState(null);
@@ -93,7 +274,7 @@ function App() {
   const addTask = () => {
     if (newTask.title && newTask.assignedTo) {
       setTasks([...tasks, { ...newTask, id: Date.now() }]);
-      setNewTask({ title: '', description: '', assignedTo: '', startDate: '', dueDate: '', status: 'Pendiente' });
+      setNewTask({ title: '', description: '', assignedTo: '', startDate: '', dueDate: '', status: 'Pendiente', isPriority: false });
     }
   };
 
@@ -166,6 +347,11 @@ function App() {
     setEmployeePositionFilter('');
   };
 
+  const handleAcknowledgeNotification = (taskId) => {
+    // Aquí puedes agregar lógica adicional si es necesario
+    console.log(`Notificación para tarea ${taskId} marcada como vista`);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -173,6 +359,12 @@ function App() {
       </header>
 
       <div className="container">
+
+        {/* Notificaciones de tareas próximas a vencer */}
+        <DueSoonNotifications 
+          tasks={tasks} 
+          onAcknowledge={handleAcknowledgeNotification}
+        />
 
       
         <div className="section">
@@ -213,12 +405,17 @@ function App() {
               <div className="task-list">
                 {getSortedTasks(searchResultsTasks).map(task => (
                   <div key={task.id} className="task-card" style={{backgroundColor: getTaskColor(task.status)}}>
-                    <h3>{task.title}</h3>
+                    <OverdueIndicator task={task} />
+                    <PriorityIndicator task={task} />
+                    <h3 className="task-title">{task.title}</h3>
                     <p><strong>Descripción:</strong> {task.description}</p>
                     <p><strong>Asignada a:</strong> {task.assignedTo}</p>
                     <p><strong>Fecha de inicio:</strong> {task.startDate}</p>
                     <p><strong>Fecha de vencimiento:</strong> {task.dueDate}</p>
                     <p><strong>Estado:</strong> {task.status}</p>
+                    {task.isPriority && <p><strong>🔴 Prioritaria</strong></p>}
+                    {/* Agregar el contador aquí */}
+                    <CountdownTimer dueDate={task.dueDate} />
                   </div>
                 ))}
               </div>
@@ -283,12 +480,17 @@ function App() {
                   <div className="task-list">
                     {getSortedTasks(getFilteredTasks()).map(task => (
                       <div key={task.id} className="task-card" style={{backgroundColor: getTaskColor(task.status)}}>
-                        <h3>{task.title}</h3>
+                        <OverdueIndicator task={task} />
+                        <PriorityIndicator task={task} />
+                        <h3 className="task-title">{task.title}</h3>
                         <p><strong>Descripción:</strong> {task.description}</p>
                         <p><strong>Asignada a:</strong> {task.assignedTo}</p>
                         <p><strong>Fecha de inicio:</strong> {task.startDate}</p>
                         <p><strong>Fecha de vencimiento:</strong> {task.dueDate}</p>
                         <p><strong>Estado:</strong> {task.status}</p>
+                        {task.isPriority && <p><strong>🔴 Prioritaria</strong></p>}
+                        {/* Agregar el contador aquí */}
+                        <CountdownTimer dueDate={task.dueDate} />
                       </div>
                     ))}
                   </div>
@@ -370,48 +572,81 @@ function App() {
             <input type="date" value={newTask.startDate} onChange={e => setNewTask({...newTask, startDate: e.target.value})} />
             <label>Fecha de vencimiento</label>
             <input type="date" value={newTask.dueDate} onChange={e => setNewTask({...newTask, dueDate: e.target.value})} />
+            <div className="priority-checkbox">
+              <label>
+                <input 
+                  type="checkbox" 
+                  checked={newTask.isPriority} 
+                  onChange={e => setNewTask({...newTask, isPriority: e.target.checked})} 
+                />
+                <span className="checkbox-label">Marcar como tarea prioritaria</span>
+              </label>
+            </div>
             <button onClick={addTask}>Agregar tarea</button>
           </div>
         </div>
 
-        <div className="section">
-          <h2>Lista de tareas ({tasks.length})</h2>
-          <div className="task-list">
-            {getSortedTasks(tasks).map(task => (
-              <div key={task.id} className="task-card" style={{backgroundColor: getTaskColor(task.status)}}>
-                {editingTask?.id === task.id ? (
-                  <div className="edit-form">
-                    <input value={editingTask.title} onChange={e => setEditingTask({...editingTask, title: e.target.value})} placeholder="Título" />
-                    <input value={editingTask.description} onChange={e => setEditingTask({...editingTask, description: e.target.value})} placeholder="Descripción" />
-                    <select value={editingTask.assignedTo} onChange={e => setEditingTask({...editingTask, assignedTo: e.target.value})}>
-                      <option value="">Seleccionar empleado</option>
-                      {employees.map(emp => <option key={emp.id} value={emp.name}>{emp.name}</option>)}
-                    </select>
-                    <label>Fecha de inicio</label>
-                    <input type="date" value={editingTask.startDate} onChange={e => setEditingTask({...editingTask, startDate: e.target.value})} />
-                    <label>Fecha de vencimiento</label>
-                    <input type="date" value={editingTask.dueDate} onChange={e => setEditingTask({...editingTask, dueDate: e.target.value})} />
-                    <div className="card-buttons">
-                      <button className="edit-btn" onClick={saveEditTask}>Guardar</button>
-                    </div>
+        <div className="tasks-container">
+          <div className="tasks-main-section">
+            <div className="section">
+              <h2>Lista de tareas ({tasks.length})</h2>
+              <div className="task-list">
+                {getSortedTasks(tasks).map(task => (
+                  <div key={task.id} className="task-card" style={{backgroundColor: getTaskColor(task.status)}}>
+                    <OverdueIndicator task={task} />
+                    <PriorityIndicator task={task} />
+                    {editingTask?.id === task.id ? (
+                      <div className="edit-form">
+                        <input value={editingTask.title} onChange={e => setEditingTask({...editingTask, title: e.target.value})} placeholder="Título" />
+                        <input value={editingTask.description} onChange={e => setEditingTask({...editingTask, description: e.target.value})} placeholder="Descripción" />
+                        <select value={editingTask.assignedTo} onChange={e => setEditingTask({...editingTask, assignedTo: e.target.value})}>
+                          <option value="">Seleccionar empleado</option>
+                          {employees.map(emp => <option key={emp.id} value={emp.name}>{emp.name}</option>)}
+                        </select>
+                        <label>Fecha de inicio</label>
+                        <input type="date" value={editingTask.startDate} onChange={e => setEditingTask({...editingTask, startDate: e.target.value})} />
+                        <label>Fecha de vencimiento</label>
+                        <input type="date" value={editingTask.dueDate} onChange={e => setEditingTask({...editingTask, dueDate: e.target.value})} />
+                        <div className="priority-checkbox">
+                          <label>
+                            <input 
+                              type="checkbox" 
+                              checked={editingTask.isPriority} 
+                              onChange={e => setEditingTask({...editingTask, isPriority: e.target.checked})} 
+                            />
+                            <span className="checkbox-label">Marcar como tarea prioritaria</span>
+                          </label>
+                        </div>
+                        <div className="card-buttons">
+                          <button className="edit-btn" onClick={saveEditTask}>Guardar</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <h3 className="task-title">{task.title}</h3>
+                        <p><strong>Descripción:</strong> {task.description}</p>
+                        <p><strong>Asignada a:</strong> {task.assignedTo}</p>
+                        <p><strong>Fecha de inicio:</strong> {task.startDate}</p>
+                        <p><strong>Fecha de vencimiento:</strong> {task.dueDate}</p>
+                        <p><strong>Estado:</strong> {task.status}</p>
+                        {task.isPriority && <p><strong>🔴 Prioritaria</strong></p>}
+                        {/* Agregar el contador aquí */}
+                        <CountdownTimer dueDate={task.dueDate} />
+                        <div className="card-buttons">
+                          <button className="status-btn" onClick={() => toggleTaskStatus(task)}>Cambiar estado</button>
+                          <button className="edit-btn" onClick={() => startEditTask(task)}>Editar</button>
+                          <button className="delete-btn" onClick={() => setConfirmDelete({type:'task', id: task.id})}>Eliminar</button>
+                        </div>
+                      </>
+                    )}
                   </div>
-                ) : (
-                  <>
-                    <h3>{task.title}</h3>
-                    <p><strong>Descripción:</strong> {task.description}</p>
-                    <p><strong>Asignada a:</strong> {task.assignedTo}</p>
-                    <p><strong>Fecha de inicio:</strong> {task.startDate}</p>
-                    <p><strong>Fecha de vencimiento:</strong> {task.dueDate}</p>
-                    <p><strong>Estado:</strong> {task.status}</p>
-                    <div className="card-buttons">
-                      <button className="status-btn" onClick={() => toggleTaskStatus(task)}>Cambiar estado</button>
-                      <button className="edit-btn" onClick={() => startEditTask(task)}>Editar</button>
-                      <button className="delete-btn" onClick={() => setConfirmDelete({type:'task', id: task.id})}>Eliminar</button>
-                    </div>
-                  </>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+
+          <div className="tasks-sidebar">
+            <TaskStatusCounter tasks={tasks} />
           </div>
         </div>
 

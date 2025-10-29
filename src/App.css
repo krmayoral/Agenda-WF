@@ -374,6 +374,301 @@
   line-height: 1.4;
 }
 
+/* Estilos para el indicador de tarea vencida */
+.overdue-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.overdue-cross {
+  display: inline-block;
+  color: #e74c3c;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Estilos para el indicador de prioridad */
+.priority-indicator {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+}
+
+.priority-star {
+  display: inline-block;
+  font-size: 24px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: glow 2s infinite;
+}
+
+@keyframes glow {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* Estilos para el checkbox de prioridad */
+.priority-checkbox {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border: 2px solid #e1e8ed;
+  margin: 10px 0;
+}
+
+.priority-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.priority-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+.priority-checkbox input[type="checkbox"]:checked + .checkbox-label {
+  color: #f39c12;
+  font-weight: bold;
+}
+
+/* Estilos para el contenedor de tareas con sidebar */
+.tasks-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+.tasks-main-section {
+  flex: 1;
+}
+
+.tasks-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+/* Estilos para el contador de estados de tareas */
+.task-status-counter {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: 1px solid #e1e8ed;
+  margin-bottom: 20px;
+}
+
+.task-status-counter h3 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  text-align: center;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 10px;
+}
+
+.counter-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.counter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.counter-item.pending {
+  background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+  border-left: 4px solid #7f8c8d;
+}
+
+.counter-item.in-progress {
+  background: linear-gradient(135deg, #fef9e7, #f7dc6f);
+  border-left: 4px solid #f1c40f;
+}
+
+.counter-item.completed {
+  background: linear-gradient(135deg, #e8f8f5, #82e0aa);
+  border-left: 4px solid #27ae60;
+}
+
+.counter-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.counter-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.counter-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2c3e50;
+  text-align: right;
+  text-transform: none;
+}
+
+.counter-total {
+  text-align: center;
+  padding: 12px;
+  background: #2c3e50;
+  color: white;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Estilos para el título de la tarea con margen para la estrella */
+.task-title {
+  margin-left: 40px !important;
+  margin-right: 40px !important;
+  padding-right: 10px;
+  word-wrap: break-word;
+  line-height: 1.3;
+}
+
+/* Estilos para notificaciones de tareas próximas a vencer */
+.due-soon-notifications {
+  width: 100%;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 2px solid #e17055;
+}
+
+.due-soon-notifications h3 {
+  color: #2d3436;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+  text-align: center;
+  border-bottom: 2px solid rgba(45, 52, 54, 0.2);
+  padding-bottom: 10px;
+}
+
+.due-soon-notification {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-left: 4px solid #e17055;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.due-soon-notification:last-child {
+  margin-bottom: 0;
+}
+
+.notification-content {
+  flex: 1;
+  text-align: left;
+}
+
+.notification-content h4 {
+  color: #2d3436;
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+}
+
+.notification-content p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: #636e72;
+}
+
+.due-soon-warning {
+  color: #e17055 !important;
+  font-weight: bold;
+  margin-top: 8px !important;
+  font-size: 0.95rem !important;
+}
+
+.acknowledge-btn {
+  background-color: #6c5ce7;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  min-width: 100px;
+}
+
+.acknowledge-btn:hover {
+  background-color: #5b4fcf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(108, 92, 231, 0.3);
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 10px;
@@ -405,5 +700,67 @@
   
   .card-buttons {
     flex-direction: column;
+  }
+  
+  .overdue-cross {
+    font-size: 20px;
+    width: 25px;
+    height: 25px;
+  }
+
+  .priority-star {
+    font-size: 20px;
+    width: 25px;
+    height: 25px;
+  }
+
+  .tasks-container {
+    flex-direction: column;
+  }
+
+  .tasks-sidebar {
+    width: 100%;
+    order: -1;
+  }
+
+  .counter-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .counter-item {
+    flex: 1;
+    min-width: 120px;
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .counter-number {
+    font-size: 1.5rem;
+  }
+
+  .counter-label {
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  .task-title {
+    margin-left: 35px !important;
+    margin-right: 35px !important;
+  }
+
+  .due-soon-notification {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .notification-content {
+    text-align: center;
+  }
+
+  .acknowledge-btn {
+    width: 100%;
+    margin-top: 10px;
   }
 }
