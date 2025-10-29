@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-// Componente para el contador de tiempo
+
 const CountdownTimer = ({ dueDate }) => {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
@@ -51,7 +51,7 @@ const CountdownTimer = ({ dueDate }) => {
   );
 };
 
-// Componente para la tacha roja de tareas vencidas
+
 const OverdueIndicator = ({ task }) => {
   const isOverdue = () => {
     if (!task.dueDate) return false;
@@ -71,7 +71,7 @@ const OverdueIndicator = ({ task }) => {
   );
 };
 
-// Componente para la estrella de prioridad
+
 const PriorityIndicator = ({ task }) => {
   if (!task.isPriority) {
     return null;
@@ -84,7 +84,7 @@ const PriorityIndicator = ({ task }) => {
   );
 };
 
-// Componente para el contador de estados de tareas
+
 const TaskStatusCounter = ({ tasks }) => {
   const countTasksByStatus = () => {
     const counts = {
@@ -128,7 +128,7 @@ const TaskStatusCounter = ({ tasks }) => {
   );
 };
 
-// Componente para notificaciones de tareas próximas a vencer
+
 const DueSoonNotifications = ({ tasks, onAcknowledge }) => {
   const [acknowledgedTasks, setAcknowledgedTasks] = useState([]);
 
@@ -348,7 +348,7 @@ function App() {
   };
 
   const handleAcknowledgeNotification = (taskId) => {
-    // Aquí puedes agregar lógica adicional si es necesario
+    
     console.log(`Notificación para tarea ${taskId} marcada como vista`);
   };
 
@@ -360,7 +360,7 @@ function App() {
 
       <div className="container">
 
-        {/* Notificaciones de tareas próximas a vencer */}
+        
         <DueSoonNotifications 
           tasks={tasks} 
           onAcknowledge={handleAcknowledgeNotification}
@@ -414,7 +414,7 @@ function App() {
                     <p><strong>Fecha de vencimiento:</strong> {task.dueDate}</p>
                     <p><strong>Estado:</strong> {task.status}</p>
                     {task.isPriority && <p><strong>🔴 Prioritaria</strong></p>}
-                    {/* Agregar el contador aquí */}
+                    
                     <CountdownTimer dueDate={task.dueDate} />
                   </div>
                 ))}
@@ -489,7 +489,7 @@ function App() {
                         <p><strong>Fecha de vencimiento:</strong> {task.dueDate}</p>
                         <p><strong>Estado:</strong> {task.status}</p>
                         {task.isPriority && <p><strong>🔴 Prioritaria</strong></p>}
-                        {/* Agregar el contador aquí */}
+                        
                         <CountdownTimer dueDate={task.dueDate} />
                       </div>
                     ))}
@@ -630,7 +630,7 @@ function App() {
                         <p><strong>Fecha de vencimiento:</strong> {task.dueDate}</p>
                         <p><strong>Estado:</strong> {task.status}</p>
                         {task.isPriority && <p><strong>🔴 Prioritaria</strong></p>}
-                        {/* Agregar el contador aquí */}
+                      
                         <CountdownTimer dueDate={task.dueDate} />
                         <div className="card-buttons">
                           <button className="status-btn" onClick={() => toggleTaskStatus(task)}>Cambiar estado</button>
